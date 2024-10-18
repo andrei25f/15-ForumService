@@ -1,10 +1,12 @@
 package ait.cohort46.post.service;
 
 import ait.cohort46.post.dao.PostRepository;
+import ait.cohort46.post.dto.CommentDto;
 import ait.cohort46.post.dto.NewCommentDto;
 import ait.cohort46.post.dto.NewPostDto;
 import ait.cohort46.post.dto.PostDto;
 import ait.cohort46.post.dto.exception.PostNotFoundException;
+import ait.cohort46.post.model.Comment;
 import ait.cohort46.post.model.Post;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -58,26 +60,41 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto addComment(String id, String author, NewCommentDto newCommentDto) {
-        return null;
+        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        if (author != null && newCommentDto.getMessage() != null) {
+            var comment = modelMapper.map(newCommentDto, Comment.class);
+            comment.setUser(author);
+            post.addComment(comment);
+            post = postRepository.save(post);
+        }
+        return modelMapper.map(post, PostDto.class);
     }
 
     @Override
     public void addLike(String id) {
-
+        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        post.addLike();
+        postRepository.save(post);
     }
 
     @Override
     public Iterable<PostDto> findPostsByAuthor(String author) {
-        return null;
+        return postRepository.findByAuthorIgnoreCase(author)
+                .map(p -> modelMapper.map(p, PostDto.class))
+                .toList();
     }
 
     @Override
     public Iterable<PostDto> findPostsByTags(List<String> tags) {
-        return null;
+        return postRepository.findByTagsInIgnoreCase(tags)
+                .map(p -> modelMapper.map(p, PostDto.class))
+                .toList();
     }
 
     @Override
     public Iterable<PostDto> findPostsByPeriod(LocalDate dateFrom, LocalDate dateTo) {
-        return null;
+        return postRepository.findByDateCreatedBetween(dateFrom, dateTo)
+                .map(p -> modelMapper.map(p, PostDto.class))
+                .toList();
     }
 }
