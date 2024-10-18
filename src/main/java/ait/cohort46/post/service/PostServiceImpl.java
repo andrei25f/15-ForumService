@@ -21,10 +21,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto addNewPost(String author, NewPostDto newPostDto) {
-        Post post = new Post();
+        Post post = modelMapper.map(newPostDto, Post.class);
         post.setAuthor(author);
-        modelMapper.map(newPostDto, post);
-        postRepository.save(post);
+        post = postRepository.save(post);
         return modelMapper.map(post, PostDto.class);
     }
 
@@ -36,12 +35,25 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto removePost(String id) {
-        return null;
+        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        postRepository.delete(post);
+        return modelMapper.map(post, PostDto.class);
     }
 
     @Override
     public PostDto updatePost(String id, NewPostDto newPostDto) {
-        return null;
+        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        if (newPostDto.getTitle() != null) {
+            post.setTitle(newPostDto.getTitle());
+        }
+        if (newPostDto.getContent() != null) {
+            post.setContent(newPostDto.getContent());
+        }
+        if (newPostDto.getTags() != null) {
+            newPostDto.getTags().forEach(post::addTag);
+        }
+        post = postRepository.save(post);
+        return modelMapper.map(post, PostDto.class);
     }
 
     @Override
