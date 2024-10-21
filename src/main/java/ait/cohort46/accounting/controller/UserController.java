@@ -7,7 +7,10 @@ import ait.cohort46.accounting.service.UserService;
 import ait.cohort46.post.dto.NewPostDto;
 import ait.cohort46.post.dto.PostDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +21,11 @@ public class UserController {
     @PostMapping("/register")
     public UserDto registerUser(@RequestBody RegisterDto registerDto) {
         return userService.registerUser(registerDto);
+    }
+
+    @PostMapping("/login")
+    public UserDto login(Principal principal) {
+        return userService.getUser(principal.getName());
     }
 
     @DeleteMapping("/user/{id}")
@@ -43,5 +51,11 @@ public class UserController {
     @GetMapping("/user/{id}")
     public UserDto removeRole(@PathVariable String id) {
         return userService.getUser(id);
+    }
+
+    @PatchMapping("/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(Principal principal, @RequestHeader("X-Password") String newPassword) {
+        userService.changePassword(principal.getName(), newPassword);
     }
 }
