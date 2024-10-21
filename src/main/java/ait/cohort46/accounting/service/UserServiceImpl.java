@@ -6,15 +6,17 @@ import ait.cohort46.accounting.dto.UpdateUserDto;
 import ait.cohort46.accounting.dto.UserDto;
 import ait.cohort46.accounting.dto.exception.UserAlreadyExistsException;
 import ait.cohort46.accounting.dto.exception.UserNotFoundException;
+import ait.cohort46.accounting.model.Role;
 import ait.cohort46.accounting.model.User;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, CommandLineRunner {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
@@ -81,5 +83,16 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         user = userRepository.save(user);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (!userRepository.existsById("admin")) {
+            String password = BCrypt.hashpw("admin", BCrypt.gensalt());
+            User admin = new User("admin", password, "", "");
+            admin.addRole(Role.MODERATOR.name());
+            admin.addRole(Role.ADMINISTRATOR.name());
+            userRepository.save(admin);
+        }
     }
 }
