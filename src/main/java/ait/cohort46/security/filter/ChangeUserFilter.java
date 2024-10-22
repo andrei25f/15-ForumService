@@ -38,7 +38,7 @@ public class ChangeUserFilter implements Filter {
                 }
             }
         } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
         filterChain.doFilter(request, response);
