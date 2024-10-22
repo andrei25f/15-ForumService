@@ -15,8 +15,8 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-@Order(30)
-public class ChangeUserFilter implements Filter {
+@Order(40)
+public class UpdateByOwnerFilter implements Filter {
     private final UserRepository repository;
 
     @Override
@@ -24,16 +24,11 @@ public class ChangeUserFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         try {
-            if (checkEndpoint(request.getServletPath())) {
-                String method = request.getMethod();
+            if (checkEndpoint(request.getMethod(), request.getServletPath())) {
                 String principal = request.getUserPrincipal().getName();
-                String login = request.getServletPath().split("/")[3];
-                if (HttpMethod.PATCH.matches(method) && !principal.equals(login)) {
-                    throw new RuntimeException();
-                }
-                User user = repository.findById(principal).get();
-                if (HttpMethod.DELETE.matches(method)
-                        && !principal.equals(login) && !user.getRoles().contains(Role.ADMINISTRATOR)) {
+                String[] path = request.getServletPath().split("/");
+                String login = path[path.length - 1];
+                if (!principal.equals(login)) {
                     throw new RuntimeException();
                 }
             }
@@ -45,7 +40,9 @@ public class ChangeUserFilter implements Filter {
     }
 
 
-    private boolean checkEndpoint(String servletPath) {
-        return servletPath.matches("/account/user/\\w+");
+    private boolean checkEndpoint(String method, String servletPath) {
+        return HttpMethod.PATCH.matches(method) && servletPath.matches("/account/user/\\w+")
+                || HttpMethod.POST.matches(method) && servletPath.matches("/forum/post/\\w+")
+                || HttpMethod.PATCH.matches(method) && servletPath.matches("/forum/post/\\w+/comment/\\w+");
     }
 }

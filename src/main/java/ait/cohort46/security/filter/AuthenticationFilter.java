@@ -44,7 +44,8 @@ public class AuthenticationFilter implements Filter {
     }
 
     private boolean checkEndpoint(String method, String servletPath) {
-        return !(HttpMethod.POST.matches(method) && servletPath.matches("/account/register"));
+        return !(HttpMethod.POST.matches(method) && servletPath.matches("/account/register")
+            || HttpMethod.GET.matches(method) && servletPath.matches("/forum/posts.*"));
     }
 
     private String[] getCredentials(String authorization) {
