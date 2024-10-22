@@ -1,8 +1,8 @@
 package ait.cohort46.security.filter;
 
-import ait.cohort46.accounting.dao.UserRepository;
 import ait.cohort46.accounting.model.Role;
 import ait.cohort46.post.dao.PostRepository;
+import ait.cohort46.security.model.User;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +18,6 @@ import java.io.IOException;
 @Order(60)
 public class DeletePostFilter implements Filter {
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -26,11 +25,11 @@ public class DeletePostFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         try {
             if (checkEndpoint(request.getMethod(), request.getServletPath())) {
-                String principal = request.getUserPrincipal().getName();
+                User user = (User) request.getUserPrincipal();
                 String[] path = request.getServletPath().split("/");
                 String id = path[path.length - 1];
-                if (!postRepository.findById(id).get().getAuthor().equals(principal)
-                        && !userRepository.findById(principal).get().getRoles().contains(Role.MODERATOR)) {
+                if (!postRepository.findById(id).get().getAuthor().equals(user.getName())
+                        && !user.getRoles().contains(Role.MODERATOR.name())) {
                     throw new RuntimeException();
                 }
             }
