@@ -22,6 +22,9 @@ public class SecurityConfiguration {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/account/register", "/forum/posts/**").permitAll()
+                .requestMatchers("/account/password").authenticated()
+                .requestMatchers("/**").access(((authentication, context) -> new AuthorizationDecision(webSecurity
+                        .checkPasswordDate(authentication.get().getName()))))
                 //.requestMatchers("/account/user/*/role/*").hasAuthority("ROLE_" + Role.ADMINISTRATOR.name())
                 .requestMatchers("/account/user/{login}/role/{role}").hasRole(Role.ADMINISTRATOR.name())
                 .requestMatchers(HttpMethod.PATCH, "/account/user/{login}")

@@ -12,6 +12,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -81,6 +83,7 @@ public class UserServiceImpl implements UserService {
     public void changePassword(String id, String newPassword) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordDate(LocalDate.now());
         user = userRepository.save(user);
     }
 }

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ public class User {
     private String login;
     @Setter
     private String password;
+    @Setter
+    private LocalDate passwordDate = LocalDate.now();
     @Setter
     private String firstName;
     @Setter
