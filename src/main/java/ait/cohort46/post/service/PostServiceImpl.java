@@ -8,6 +8,7 @@ import ait.cohort46.post.dto.PostDto;
 import ait.cohort46.post.dto.exception.PostNotFoundException;
 import ait.cohort46.post.model.Comment;
 import ait.cohort46.post.model.Post;
+import ait.cohort46.post.service.logging.PostLogger;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @PostLogger
     public void addLike(String id) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         post.addLike();
