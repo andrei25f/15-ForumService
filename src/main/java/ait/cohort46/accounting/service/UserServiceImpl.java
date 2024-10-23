@@ -8,8 +8,8 @@ import ait.cohort46.accounting.dto.exception.UserAlreadyExistsException;
 import ait.cohort46.accounting.dto.exception.UserNotFoundException;
 import ait.cohort46.accounting.model.User;
 import lombok.RequiredArgsConstructor;
-import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto registerUser(RegisterDto registerDto) {
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException();
         }
         User user = modelMapper.map(registerDto, User.class);
-        String password = BCrypt.hashpw(registerDto.getPassword(), BCrypt.gensalt());
+        String password = passwordEncoder.encode(registerDto.getPassword());
         user.setPassword(password);
         user = userRepository.save(user);
         return modelMapper.map(user, UserDto.class);
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(String id, String newPassword) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+        user.setPassword(passwordEncoder.encode(newPassword));
         user = userRepository.save(user);
     }
 }

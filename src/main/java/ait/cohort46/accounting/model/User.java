@@ -23,13 +23,13 @@ public class User {
     private String firstName;
     @Setter
     private String lastName;
-    private Set<String> roles = new HashSet<>() {{ add("USER"); }};
+    private Set<Role> roles = new HashSet<>() {{ add(Role.USER); }};
 
     public boolean addRole(String role) {
-        return roles.add(role);
+        return roles.add(Role.valueOf(role.toUpperCase()));
     }
 
     public boolean removeRole(String role) {
-        return roles.remove(role);
+        return roles.remove(Role.valueOf(role.toUpperCase()));
     }
 }
